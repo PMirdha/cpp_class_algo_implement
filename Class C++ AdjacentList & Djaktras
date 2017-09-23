@@ -1,0 +1,113 @@
+struct adj_list_struct
+{
+	int val;
+	int weight;
+	adj_list_struct *next;
+};
+class AdjacentList
+{
+public:
+	vector<adj_list_struct*>adj_list;
+	int n;
+	adj_list_struct *node;
+	AdjacentList(int n)
+	{
+		this->n=n;
+		for(int i=0;i<=n;i++)
+		{
+			//MALLOC(node,adj_list_struct,1);
+			node=(adj_list_struct *)malloc(sizeof(adj_list_struct)*1);
+			node->val=i;
+			node->weight=-1;
+			node->next=NULL;
+			this->adj_list.push_back(node);
+		}
+	}
+	void create_edge(int u,int v,int weight)
+	{
+		node=(adj_list_struct *)malloc(sizeof(adj_list_struct)*1);
+		node->val=v;
+		node->next=adj_list[u]->next;
+		node->weight=weight;
+		this->adj_list[u]->next=node;
+	}
+	void print_adj_list()
+	{
+		for(int i=0;i<=(this->n);i++)
+		{
+			cout<<this->adj_list[i]->val<<" ";
+		}
+		cout<<endl;
+	}
+};
+
+class Djaktras:public AdjacentList
+{
+public:
+
+	Djaktras(int n) : AdjacentList(n){
+		//cout<<"Djaktras initialised"<<endl;
+	}
+	void print_n()
+	{
+		cout<<this->n;
+	}
+	void swap_func(deque<int>&a,int i,int j)
+	{
+		a[i]^=a[j];
+		a[j]^=a[i];
+		a[i]^=a[j];
+	}
+	vector<int> shortest_path(int source)
+	{
+		int value,min,i,index;
+		adj_list_struct *temp;
+		vector<int> dist(this->n +1,-1),inque(this->n +1,0);
+		deque<int> pque;
+		pque.push_back(this->adj_list[1]->val);
+		inque[this->adj_list[1]->val]=1;
+		//cout<<"this->adj_list[1]->val = "<<this->adj_list[1]->val<<endl;
+		dist[1]=0;
+		while(!pque.empty())
+		{
+			min=N;
+			FOR(i,0,pque.size()-1)
+			{
+				if(min>dist[pque[i]])
+				{
+					min=dist[pque[i]];
+					value=pque[i];
+					index=i;
+				}
+			}
+			swap_func(pque,0,index);
+			//cout<<"value = "<<value<<endl;
+			inque[value]=0;
+			pque.pop_front();
+			temp=this->adj_list[value]->next;
+			while(temp)
+			{
+				if(dist[temp->val]==-1)
+				{
+					dist[temp->val]=dist[value];
+					if(temp->weight==1)
+					{
+						dist[temp->val]++;
+					}
+					pque.push_back(temp->val);
+					inque[temp->val]=1;
+					//cout<<"push temp->val = "<<temp->val<<" dist[temp->val] = "<<dist[temp->val]<<endl;
+				}
+				if(inque[temp->val]==1)
+				{
+					if(dist[temp->val]>dist[value]+temp->weight)
+					{
+						dist[temp->val]=dist[value]+temp->weight;
+					}
+				}
+				temp=temp->next;
+			}
+		}
+		return(dist);
+	}
+};
