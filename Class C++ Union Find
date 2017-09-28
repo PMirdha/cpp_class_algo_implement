@@ -1,0 +1,126 @@
+struct parent_struct
+{
+	int val;
+	parent_struct *next;
+};
+struct child_struct
+{
+	int val;
+	parent_struct *next;
+};
+
+class UnionFind
+{
+public:
+	int n;
+	/*NOTE:- Parent node will start from 1 and 0 => a child 
+	node is not connected to any parent*/
+	int pvalue;
+	vector<child_struct*> child_node;
+	vector<parent_struct*> parent_node;
+	UnionFind(int n);
+	void union_nodes(int u,int v);
+	int find(int u);
+
+	void print()
+	{
+		int i;
+		cout<<endl;
+		FOR(i,0,this->n)
+		{
+			int x=find(i);
+			if(x==0)
+				cout<<"-1"<<" , ";
+			else
+				cout<<x<<" , ";
+		}
+		cout<<endl;
+	}
+};
+
+UnionFind :: UnionFind(int n)
+{
+	int i;
+	child_struct *cnode;
+	parent_struct *pnode;
+	this->pvalue=1;
+	this->n=n;
+	FOR(i,0,n)
+	{
+		cnode=(child_struct*)malloc(sizeof(child_struct)*1);
+		cnode->val=i;
+		cnode->next=NULL;
+		this->child_node.push_back(cnode);
+	}
+	pnode=(parent_struct*)malloc(sizeof(parent_struct)*1);
+	pnode->val=0;
+	pnode->next=NULL;
+	this->parent_node.push_back(pnode);
+
+}
+
+void UnionFind :: union_nodes(int u,int v)
+{
+	child_struct *cnode;
+	parent_struct *pnode,*temp1,*temp2;
+	int x=find(u);
+	int y=find(v);
+	/*If u and v are connected to the same parent node*/
+	if(x==y && x!=0)
+	{
+		return;
+	}
+	/*If both u and v are not connected to a parent node*/
+	else if(x==0 && y==0)
+	{
+		pnode=(parent_struct*)malloc(sizeof(parent_struct)*1);
+		pnode->val=this->pvalue;
+		pnode->next=NULL;
+		this->child_node[u]->next=pnode;
+		this->child_node[v]->next=pnode;
+		this->parent_node.push_back(pnode);
+
+		this->pvalue++;//increamenting for next parent
+	}
+	/*If one of them is connected to a parent node*/
+	else if(x==0 || y==0)
+	{
+		if(x!=0)
+		{
+			temp1=this->parent_node[x];
+		}
+		else if(y!=0)
+		{
+			temp1=this->parent_node[y];
+		}
+		this->child_node[u]->next=this->child_node[v]->next=temp1;
+	}
+	/*If u and v are connected to different parent nodes*/
+	else
+	{
+		temp1=this->parent_node[x];
+		temp2=this->parent_node[y];
+		temp2->next=temp1;
+		this->child_node[u]->next=this->child_node[v]->next=temp1;
+	}
+}
+
+int UnionFind :: find(int u)
+{
+	parent_struct *temp,*pre;
+	int val=0;
+
+	temp=this->child_node[u]->next;
+	pre=temp;
+	while(temp)
+	{
+		pre=temp;
+		temp=temp->next;
+	}
+	if(pre==NULL)
+		val=0;
+	else
+		val=pre->val;
+
+	return(val);
+}
